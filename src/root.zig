@@ -1,7 +1,7 @@
 const std = @import("std");
 const php = @import("php.zig");
 
-pub usingnamespace php;
+pub usingnamespace @import("php.zig");
 
 /// Errors codes ported from PHP source code
 pub const PhpError = error{
