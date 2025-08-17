@@ -1,7 +1,7 @@
 .{
     .name = .phpzx,
     .version = "0.0.0",
-    .fingerprint = 0x721d7411cd94defd,
+    .fingerprint = 0x1e9dc81cc0a6891a,
     .minimum_zig_version = "0.14.1",
     .dependencies = .{},
     .paths = .{
