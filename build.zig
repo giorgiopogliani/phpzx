@@ -20,14 +20,14 @@ pub fn build(b: *std.Build) void {
 
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib_mod = b.createModule(.{
+    const lib_mod = b.addModule("phpzx", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
 
     const lib = b.addSharedLibrary(.{
-        .name = "zig_php_ext",
+        .name = "phpzx",
         .root_module = lib_mod,
         .optimize = optimize,
     });
