@@ -1,6 +1,8 @@
 const std = @import("std");
 const php = @import("php.zig");
 
+pub usingnamespace php;
+
 /// Errors codes ported from PHP source code
 pub const PhpError = error{
     ErrorFailure, //  1
