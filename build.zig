@@ -36,12 +36,6 @@ pub fn build(b: *std.Build) void {
 
     const php_includes_raw = runCommand(b.allocator, &.{ "php-config", "--includes" });
 
-    lib.addCSourceFiles(.{ .files = &[_][]const u8{
-        "src/module.c",
-    }, .flags = &[_][]const u8{
-        php_includes_raw,
-    } });
-
     // Add PHP include paths
     var includes_iter = std.mem.tokenizeScalar(u8, std.mem.trim(u8, php_includes_raw, " \n\r\t"), ' ');
     while (includes_iter.next()) |flag| {
