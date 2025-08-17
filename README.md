@@ -1,6 +1,6 @@
-# Write PHP extension in Zig
+# PHPZX
 
-Simple library to develop PHP extension in Zig, keeping overhead to a minimum and, providing better ergonomics and performance.
+Develop PHP extensions in Zig with zero overhead, higher performance, and improved ergonomics.
 
 ## Features
 
