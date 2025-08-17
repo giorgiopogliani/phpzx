@@ -9,7 +9,6 @@ ZEND_END_ARG_INFO()
 
 // Define the function entry for the PHP extension
 static const zend_function_entry server_functions[] = {
-    PHP_FE(arr_map, arginfo_arr_map)
     PHP_FE(num_double, arginfo_num_double)
     PHP_FE_END
 };
