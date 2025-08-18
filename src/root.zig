@@ -21,6 +21,69 @@ pub const PhpError = error{
     ErrorUnexpectedType,
 };
 
+pub const PhpType = enum(c_int) {
+    Undef = php.IS_UNDEF,
+    Null = php.IS_NULL,
+    False = php.IS_FALSE,
+    True = php.IS_TRUE,
+    Long = php.IS_LONG,
+    Double = php.IS_DOUBLE,
+    String = php.IS_STRING,
+    Array = php.IS_ARRAY,
+    Object = php.IS_OBJECT,
+    Resource = php.IS_RESOURCE,
+    Reference = php.IS_REFERENCE,
+    ConstantAst = php.IS_CONSTANT_AST,
+    Callable = php.IS_CALLABLE,
+    Iterable = php.IS_ITERABLE,
+    Void = php.IS_VOID,
+    Static = php.IS_STATIC,
+    Mixed = php.IS_MIXED,
+    Never = php.IS_NEVER,
+    Indirect = php.IS_INDIRECT,
+    Ptr = php.IS_PTR,
+    AliasPtr = php.IS_ALIAS_PTR,
+};
+
+/// Expected type enums
+pub const PhpExpectedType = enum(c_int) {
+    Long = php.Z_EXPECTED_LON,
+    LongOrNull = php.Z_EXPECTED_LONG_OR_NUL,
+    Bool = php.Z_EXPECTED_BOO,
+    BoolOrNull = php.Z_EXPECTED_BOOL_OR_NUL,
+    String = php.Z_EXPECTED_STRIN,
+    StringOrNull = php.Z_EXPECTED_STRING_OR_NUL,
+    Array = php.Z_EXPECTED_ARRA,
+    ArrayOrNull = php.Z_EXPECTED_ARRAY_OR_NUL,
+    ArrayOrLong = php.Z_EXPECTED_ARRAY_OR_LON,
+    ArrayOrLongOrNull = php.Z_EXPECTED_ARRAY_OR_LONG_OR_NUL,
+    Iterable = php.Z_EXPECTED_ITERABLE,
+    IterableOrNull = php.Z_EXPECTED_ITERABLE_OR_NULL,
+    Func = php.Z_EXPECTED_FUNC,
+    FuncOrNull = php.Z_EXPECTED_FUNC_OR_NULL,
+    Resource = php.Z_EXPECTED_RESOURCE,
+    ResourceOrNull = php.Z_EXPECTED_RESOURCE_OR_NULL,
+    Path = php.Z_EXPECTED_PATH,
+    PathOrNull = php.Z_EXPECTED_PATH_OR_NULL,
+    Object = php.Z_EXPECTED_OBJECT,
+    ObjectOrNull = php.Z_EXPECTED_OBJECT_OR_NULL,
+    Double = php.Z_EXPECTED_DOUBLE,
+    DoubleOrNull = php.Z_EXPECTED_DOUBLE_OR_NULL,
+    Number = php.Z_EXPECTED_NUMBER,
+    NumberOrNull = php.Z_EXPECTED_NUMBER_OR_NULL,
+    NumberOrString = php.Z_EXPECTED_NUMBER_OR_STRING,
+    NumberOrStringOrNull = php.Z_EXPECTED_NUMBER_OR_STRING_OR_NULL,
+    ArrayOrString = php.Z_EXPECTED_ARRAY_OR_STRING,
+    ArrayOrStringOrNull = php.Z_EXPECTED_ARRAY_OR_STRING_OR_NULL,
+    StringOrLong = php.Z_EXPECTED_STRING_OR_LONG,
+    StringOrLongOrNull = php.Z_EXPECTED_STRING_OR_LONG_OR_NULL,
+    ObjectOrClassName = php.Z_EXPECTED_OBJECT_OR_CLASS_NAME,
+    ObjectOrClassNameOrNull = php.Z_EXPECTED_OBJECT_OR_CLASS_NAME_OR_NULL,
+    ObjectOrString = php.Z_EXPECTED_OBJECT_OR_STRING,
+    ObjectOrStringOrNull = php.Z_EXPECTED_OBJECT_OR_STRING_OR_NULL,
+    Last = php.Z_EXPECTED_LAST,
+};
+
 /// Optional diagnostics used for reporting useful errors
 pub const PhpDiagnostic = struct {
     min_num_args: u32 = 0,
@@ -169,12 +232,12 @@ pub inline fn parse_arg_closure(diag: *PhpDiagnostic, func: *PhpFunction, arg_in
 
 /// Parse long
 pub inline fn parse_arg_long(diag: *PhpDiagnostic, func: *const PhpFunction, arg_index: usize, long: *php.zend_long) PhpError!void {
-    try check_arg_type(diag, arg_index, func.args, php.IS_LONG);
+    try check_arg_type(diag, arg_index, func.args, PhpExpectedType.Long);
     long.* = php.zval_get_long(func.args + 1);
 }
 
 /// Check zval type
-pub inline fn check_arg_type(diag: *PhpDiagnostic, arg_index: usize, php_val: [*c]php.zval, php_type: c_int) !void {
+pub inline fn check_arg_type(diag: *PhpDiagnostic, arg_index: usize, php_val: [*c]php.zval, php_type: PhpExpectedType) !void {
     if (php.zval_get_type(php_val) != php_type) {
         diag.num_arg = arg_index;
         diag.expected_type = php_type;
@@ -196,5 +259,5 @@ pub inline fn check_args_count(diag: *PhpDiagnostic, func: *const PhpFunction, c
 
 pub inline fn set_zval_long(zval: *php.zval, value: php.zend_long) void {
     zval.*.value.lval = value;
-    zval.*.u1.type_info = php.IS_LONG;
+    zval.*.u1.type_info = PhpType.Long;
 }
