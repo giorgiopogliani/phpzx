@@ -39,10 +39,7 @@ pub const PhpType = enum(c_int) {
     Void = php.IS_VOID,
     Static = php.IS_STATIC,
     Mixed = php.IS_MIXED,
-    Never = php.IS_NEVER,
-    Indirect = php.IS_INDIRECT,
-    Ptr = php.IS_PTR,
-    AliasPtr = php.IS_ALIAS_PTR,
+    Never = php.IS_NEVER
 };
 
 /// Expected type enums
