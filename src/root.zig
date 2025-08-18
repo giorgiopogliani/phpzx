@@ -169,11 +169,7 @@ pub inline fn parse_arg_closure(diag: *PhpDiagnostic, func: *PhpFunction, arg_in
 
 /// Parse long
 pub inline fn parse_arg_long(diag: *PhpDiagnostic, func: *const PhpFunction, arg_index: usize, long: *php.zend_long) PhpError!void {
-    _ = diag;
-    _ = arg_index;
-    // check_arg_type(diag, arg_index, func.args, php.IS_LONG) catch |err| {
-    //     return err;
-    // };
+    check_arg_type(diag, arg_index, func.args, php.IS_LONG);
     long.* = php.zval_get_long(func.args + 1);
 }
 
