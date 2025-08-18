@@ -21,7 +21,7 @@ pub const PhpError = error{
     ErrorUnexpectedType,
 };
 
-pub const PhpType = enum(c_int) {
+pub const PhpType = enum(u8) {
     Undef = php.IS_UNDEF,
     Null = php.IS_NULL,
     False = php.IS_FALSE,
@@ -238,9 +238,9 @@ pub inline fn parse_arg_long(diag: *PhpDiagnostic, func: *const PhpFunction, arg
 /// Check zval type
 pub inline fn check_arg_type(diag: *PhpDiagnostic, arg_index: usize, php_val: [*c]php.zval, php_type: PhpType) !void {
     // TODO: update to check on multiple types
-    if (php.zval_get_type(php_val) != php_type) {
+    if (php.zval_get_type(php_val) != @intFromEnum(php_type)) {
         diag.num_arg = arg_index;
-        diag.expected_type = php_type;
+        diag.expected_type = @intFromEnum(php_type);
         diag.args = php_val;
         return PhpError.ErrorUnexpectedType;
     }
@@ -259,5 +259,5 @@ pub inline fn check_args_count(diag: *PhpDiagnostic, func: *const PhpFunction, c
 
 pub inline fn set_zval_long(zval: *php.zval, value: php.zend_long) void {
     zval.*.value.lval = value;
-    zval.*.u1.type_info = PhpType.Long;
+    zval.*.u1.type_info = @intFromEnum(PhpType.Long);
 }
