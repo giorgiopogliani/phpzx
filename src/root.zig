@@ -232,12 +232,15 @@ pub inline fn parse_arg_closure(diag: *PhpDiagnostic, func: *PhpFunction, arg_in
 
 /// Parse long
 pub inline fn parse_arg_long(diag: *PhpDiagnostic, func: *const PhpFunction, arg_index: usize, long: *php.zend_long) PhpError!void {
-    try check_arg_type(diag, arg_index, func.args, PhpExpectedType.Long);
+    _ = diag;
+    _ = arg_index;
+    // TODO: check type
     long.* = php.zval_get_long(func.args + 1);
 }
 
 /// Check zval type
-pub inline fn check_arg_type(diag: *PhpDiagnostic, arg_index: usize, php_val: [*c]php.zval, php_type: PhpExpectedType) !void {
+pub inline fn check_arg_type(diag: *PhpDiagnostic, arg_index: usize, php_val: [*c]php.zval, php_type: PhpType) !void {
+    // TODO: update to check on multiple types
     if (php.zval_get_type(php_val) != php_type) {
         diag.num_arg = arg_index;
         diag.expected_type = php_type;
