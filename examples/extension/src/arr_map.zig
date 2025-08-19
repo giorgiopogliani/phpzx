@@ -15,7 +15,7 @@ pub const __builtin_assume = @import("std").zig.c_builtins.__builtin_assume;
 pub const __builtin_expect = @import("std").zig.c_builtins.__builtin_expect;
 pub const __builtin_constant_p = @import("std").zig.c_builtins.__builtin_constant_p;
 
-/// Main extenjsion function
+/// Main extension function
 pub export fn zif_arr_map(execute_data: [*c]php.zend_execute_data, return_value: [*c]php.zval) void {
     var diag = PhpDiagnostic{};
     var func = PhpFunction.new(execute_data);
@@ -46,7 +46,7 @@ pub export fn zif_arr_map(execute_data: [*c]php.zend_execute_data, return_value:
     var maxlen: u32 = 0;
 
     if (n_arrays == 1) {
-        check_arg_type(&diag, 2, &arrays[0], php.PhpType.Array) catch |err| {
+        check_arg_type(&diag, 2, &arrays[0], &.{ php.PhpType.Array }) catch |err| {
             diag.report(err);
             return;
         };
