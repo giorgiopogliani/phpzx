@@ -1,14 +1,15 @@
 const std = @import("std");
-const php = @import("phpzx");
+const php = @import("phpzx").c;
+const phpzx = @import("phpzx");
 
-const PhpDiagnostic = @import("phpzx").PhpDiagnostic;
-const PhpFunction = @import("phpzx").PhpFunction;
-const PhpArray = @import("phpzx").PhpArray;
-
-const check_args_count = @import("phpzx").check_args_count;
-const check_arg_type = @import("phpzx").check_arg_type;
-const parse_arg_closure = @import("phpzx").parse_arg_closure;
-const parse_arg_variadic = @import("phpzx").parse_arg_variadic;
+const PhpDiagnostic = phpzx.PhpDiagnostic;
+const PhpFunction = phpzx.PhpFunction;
+const PhpArray = phpzx.PhpArray;
+const PhpType = phpzx.PhpType;
+const check_args_count = phpzx.check_args_count;
+const check_arg_type = phpzx.check_arg_type;
+const parse_arg_closure = phpzx.parse_arg_closure;
+const parse_arg_variadic = phpzx.parse_arg_variadic;
 
 pub extern var executor_globals: php.zend_executor_globals;
 pub const __builtin_assume = @import("std").zig.c_builtins.__builtin_assume;
@@ -46,7 +47,7 @@ pub export fn zif_arr_map(execute_data: [*c]php.zend_execute_data, return_value:
     var maxlen: u32 = 0;
 
     if (n_arrays == 1) {
-        check_arg_type(&diag, 2, &arrays[0], &.{ php.PhpType.Array }) catch |err| {
+        check_arg_type(&diag, 2, &arrays[0], PhpType.Array) catch |err| {
             diag.report(err);
             return;
         };
