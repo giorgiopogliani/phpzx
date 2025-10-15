@@ -11,10 +11,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const lib = b.addSharedLibrary(.{
+    const lib = b.addLibrary(.{
+        .linkage = .dynamic,
         .name = "phpzx",
         .root_module = lib_mod,
-        .optimize = optimize,
     });
 
     lib.linker_allow_shlib_undefined = true;
