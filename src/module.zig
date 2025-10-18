@@ -39,7 +39,7 @@ pub fn functions(builder: ModuleBuilder, comptime entries: []const c.zend_functi
     builder.module.functions = entries;
 }
 
-pub fn minit(builder: ModuleBuilder, comptime func: @TypeOf(builder.module_startup_func)) void {
+pub fn minit(builder: ModuleBuilder, comptime func: @TypeOf(builder.module.module_startup_func)) void {
     builder.module.module_startup_func = func;
 }
 
