@@ -94,41 +94,7 @@ pub export fn zm_startup_sample(arg_type: c_int, arg_module_number: c_int) c.zen
     return c.SUCCESS;
 }
 
-const ModuleBuilder = struct {
-  module: c.zend_module_entry,
-
-  fn build() c.zend_module_entry {
-    return c.zend_module_entry{
-        .size = @sizeOf(c.zend_module_entry),
-        .zend_api = 20240924,
-        .zend_debug = 0,
-        .zts = 0,
-        .ini_entry = null,
-        .deps = null,
-        .name = "sample",
-        .functions = null,
-        .module_startup_func = &zm_startup_sample,
-        .module_shutdown_func = null,
-        .request_startup_func = null,
-        .request_shutdown_func = null,
-        .info_func = null,
-        .version = null,
-        .globals_size = 0,
-        .globals_ptr = null,
-        .globals_ctor = null,
-        .globals_dtor = null,
-        .post_deactivate_func = null,
-        .module_started = 0,
-        .type = 0,
-        .handle = null,
-        .module_number = 0,
-        .build_id = "API20240924,NTS",
-    };
-  }
-};
-
-
-pub export var sample_module_entry: c.zend_module_entry = ModuleBuilder.build();
+pub export var sample_module_entry: c.zend_module_entry = phpzx.ModuleBuilder.build("sample");
 
 pub export fn get_module() *c.zend_module_entry {
     return &sample_module_entry;
