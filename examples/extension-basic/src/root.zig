@@ -1,1 +1,1 @@
-pub usingnamespace @import("arr_count.zig");
+pub const arr_count = @import("arr_count.zig");

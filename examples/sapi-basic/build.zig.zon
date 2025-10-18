@@ -1,0 +1,15 @@
+.{
+    .name = "php-sapi",
+    .version = "0.0.0",
+    .dependencies = .{
+        .phpzx = .{
+            .url = "git+https://github.com/giorgiopogliani/phpzx#d87951687ab87a5854c5c64a39ad5407cd0f971b",
+            .hash = "phpzx-0.0.0-GommwDFMMQCIf4yMYmJ9-zgMFDJ5sdEmlMfD11DBhXjI",
+        },
+    },
+    .paths = .{
+        "src",
+        "build.zig",
+        "build.zig.zon",
+    },
+}

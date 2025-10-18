@@ -3,9 +3,10 @@
 #include <php.h>
 
 extern void zif_arr_map(zend_execute_data *execute_data, zval *return_value);
-ZEND_BEGIN_ARG_INFO(arginfo_arr_map, 0)
-ZEND_ARG_TYPE_INFO(0, callback, IS_CALLABLE, 0)
-ZEND_ARG_VARIADIC_INFO(0, array)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_arr_map, 0, 2, IS_ARRAY, 0)
+ZEND_ARG_TYPE_INFO(0, callback, IS_CALLABLE, 1)
+ZEND_ARG_INFO(0, array)
+ZEND_ARG_VARIADIC_INFO(0, arrays)
 ZEND_END_ARG_INFO()
 
 // Define the function entry for the PHP extension
