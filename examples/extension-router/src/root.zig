@@ -94,7 +94,9 @@ pub export fn zm_startup_sample(arg_type: c_int, arg_module_number: c_int) c.zen
     return c.SUCCESS;
 }
 
-pub export var sample_module_entry: c.zend_module_entry = phpzx.ModuleBuilder.build("sample");
+pub export var sample_module_entry: c.zend_module_entry = phpzx.ModuleBuilder
+    .minit(zm_startup_sample)
+    .build("sample");
 
 pub export fn get_module() *c.zend_module_entry {
     return &sample_module_entry;
