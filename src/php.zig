@@ -22681,7 +22681,7 @@ pub const struct__zend_class_arrayaccess_funcs = extern struct {
 };
 pub const zend_class_arrayaccess_funcs = struct__zend_class_arrayaccess_funcs;
 const union_unnamed_17 = extern union {
-    create_object: ?*const fn ([*c]zend_class_entry) callconv(.c) [*c]zend_object,
+    create_object: ?*const fn (*zend_class_entry) callconv(.c) *zend_object,
     interface_gets_implemented: ?*const fn ([*c]zend_class_entry, [*c]zend_class_entry) callconv(.c) c_int,
 };
 pub const struct__zend_object_iterator_funcs = extern struct {
