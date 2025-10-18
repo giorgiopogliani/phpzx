@@ -2,7 +2,6 @@ const std = @import("std");
 const php = @import("php.zig");
 pub const c = php;
 
-
 /// Errors codes ported from PHP source code
 pub const PhpError = error{
     ErrorFailure, //  1
@@ -21,26 +20,7 @@ pub const PhpError = error{
     ErrorUnexpectedType,
 };
 
-pub const PhpType = enum(u8) {
-    Undef = php.IS_UNDEF,
-    Null = php.IS_NULL,
-    False = php.IS_FALSE,
-    True = php.IS_TRUE,
-    Long = php.IS_LONG,
-    Double = php.IS_DOUBLE,
-    String = php.IS_STRING,
-    Array = php.IS_ARRAY,
-    Object = php.IS_OBJECT,
-    Resource = php.IS_RESOURCE,
-    Reference = php.IS_REFERENCE,
-    ConstantAst = php.IS_CONSTANT_AST,
-    Callable = php.IS_CALLABLE,
-    Iterable = php.IS_ITERABLE,
-    Void = php.IS_VOID,
-    Static = php.IS_STATIC,
-    Mixed = php.IS_MIXED,
-    Never = php.IS_NEVER
-};
+pub const PhpType = enum(u8) { Undef = php.IS_UNDEF, Null = php.IS_NULL, False = php.IS_FALSE, True = php.IS_TRUE, Long = php.IS_LONG, Double = php.IS_DOUBLE, String = php.IS_STRING, Array = php.IS_ARRAY, Object = php.IS_OBJECT, Resource = php.IS_RESOURCE, Reference = php.IS_REFERENCE, ConstantAst = php.IS_CONSTANT_AST, Callable = php.IS_CALLABLE, Iterable = php.IS_ITERABLE, Void = php.IS_VOID, Static = php.IS_STATIC, Mixed = php.IS_MIXED, Never = php.IS_NEVER };
 
 /// Expected type enums
 pub const PhpExpectedType = enum(c_int) {
@@ -260,4 +240,40 @@ pub inline fn check_args_count(diag: *PhpDiagnostic, func: *const PhpFunction, c
 pub inline fn set_zval_long(zval: *php.zval, value: php.zend_long) void {
     zval.*.value.lval = value;
     zval.*.u1.type_info = @intFromEnum(PhpType.Long);
+}
+
+pub fn PhpDefineClass(comptime T: type, comptime methods: [*]c.zend_function_entry) type {
+    return struct {
+        object: T,
+        ce: *c.zend_class_entry = undefined,
+        handlers: c.zend_object_handlers = undefined,
+        methods: [*]c.zend_function_entry = methods,
+
+        pub fn sample_create_obj(self: *T, ce: *c.zend_class_entry) *c.zend_object {
+            const obj: *T = @as(*self.object, @ptrCast(@alignCast(c.zend_object_alloc(@sizeOf(T), ce))));
+            c.zend_object_std_init(&obj.*.std, ce);
+            c.object_properties_init(&obj.*.std, ce);
+            return &obj.*.std;
+        }
+
+        pub export fn zm_startup_sample(self: *T, arg_type: c_int, arg_module_number: c_int) c.zend_result {
+            var @"type" = arg_type;
+            _ = &@"type";
+            var module_number = arg_module_number;
+            _ = &module_number;
+            var ce: c.zend_class_entry = undefined;
+            _ = &ce;
+            {
+                _ = c.__builtin___memset_chk(@as(?*anyopaque, @ptrCast(&ce)), @as(c_int, 0), @sizeOf(c.zend_class_entry), c.__builtin_object_size(@as(?*const anyopaque, @ptrCast(&ce)), @as(c_int, 0)));
+                ce.name = c.zend_string_init_interned.?("Sample", c.strlen("Sample"), @as(c_int, 1) != 0);
+                // ce.default_object_handlers = &std_object_handlers;
+                ce.info.internal.builtin_functions = @as([*c]const c.zend_function_entry, @ptrCast(@alignCast(&methods[@as(usize, @intCast(0))])));
+            }
+
+            self.sample_ce = c.zend_register_internal_class(&ce);
+            self.sample_ce.*.unnamed_1.create_object = @ptrCast(&sample_create_obj);
+
+            return c.SUCCESS;
+        }
+    };
 }
