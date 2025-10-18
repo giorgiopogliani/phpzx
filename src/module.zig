@@ -4,7 +4,7 @@ const c = @import("php.zig");
 
 module: c.zend_module_entry,
 
-pub fn new(name: []const u8) *ModuleBuilder {
+pub fn new(name: []const u8) ModuleBuilder {
     return ModuleBuilder{
       .module = c.zend_module_entry{
         .size = @sizeOf(c.zend_module_entry),
@@ -13,7 +13,7 @@ pub fn new(name: []const u8) *ModuleBuilder {
         .zts = 0,
         .ini_entry = null,
         .deps = null,
-        .name = name,
+        .name = @ptrCast(name),
         .functions = null,
         .module_startup_func = null,
         .module_shutdown_func = null,
@@ -35,14 +35,25 @@ pub fn new(name: []const u8) *ModuleBuilder {
   };
 }
 
-pub fn functions(builder: *ModuleBuilder, comptime entries: []const c.zend_function_entry) void {
+pub fn functions(builder: ModuleBuilder, comptime entries: []const c.zend_function_entry) void {
     builder.module.functions = entries;
 }
 
-pub fn minit(builder: *ModuleBuilder, comptime func: @TypeOf(builder.module_startup_func)) void {
+pub fn minit(builder: ModuleBuilder, comptime func: @TypeOf(builder.module_startup_func)) void {
     builder.module.module_startup_func = func;
 }
 
-pub fn build(builder: *ModuleBuilder) c.zend_module_entry {
+pub fn build(builder: ModuleBuilder) c.zend_module_entry {
     return builder.module;
+}
+
+const std = @import("std");
+const expect = std.testing.expect;
+
+test "can build a module" {
+  comptime {
+    _ = ModuleBuilder.new("test_module").build();
+  }
+
+  try expect(true);
 }

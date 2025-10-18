@@ -22495,7 +22495,7 @@ pub const struct__zend_execute_data = extern struct {
     extra_named_params: [*c]zend_array = @import("std").mem.zeroes([*c]zend_array),
 };
 pub const zend_execute_data = struct__zend_execute_data;
-pub const zif_handler = ?*const fn ([*c]zend_execute_data, [*c]zval) callconv(.c) void;
+pub const zif_handler = ?*const fn() callconv(.c) void;
 pub const zend_ini_entry = struct__zend_ini_entry;
 pub const struct__zend_ini_entry = extern struct {
     name: [*c]zend_string = @import("std").mem.zeroes([*c]zend_string),
@@ -22534,7 +22534,7 @@ pub const struct__zend_module_entry = extern struct {
     zts: u8 = @import("std").mem.zeroes(u8),
     ini_entry: [*c]const struct__zend_ini_entry = @import("std").mem.zeroes([*c]const struct__zend_ini_entry),
     deps: [*c]const struct__zend_module_dep = @import("std").mem.zeroes([*c]const struct__zend_module_dep),
-    name: []const u8 = undefined,
+    name: [*c]const u8 = undefined,
     functions: [*c]const struct__zend_function_entry = @import("std").mem.zeroes([*c]const struct__zend_function_entry),
     module_startup_func: ?*const fn (c_int, c_int) callconv(.c) zend_result = @import("std").mem.zeroes(?*const fn (c_int, c_int) callconv(.c) zend_result),
     module_shutdown_func: ?*const fn (c_int, c_int) callconv(.c) zend_result = @import("std").mem.zeroes(?*const fn (c_int, c_int) callconv(.c) zend_result),
