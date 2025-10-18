@@ -3,8 +3,8 @@
     .version = "0.0.0", // comment
     .dependencies = .{
         .phpzx = .{
-            .url = "git+https://github.com/giorgiopogliani/phpzx#7ff4adcf1c9e26199bf8b48b20d67c7e945c3506",
-            .hash = "phpzx-0.0.0-GommwOJPMQDTxtXws-PMVs6Ev5WT9oXJKdrqHgz_s2-v",
+            .url = "git+https://github.com/giorgiopogliani/phpzx#5c72de69acf5119c148d5392575703dcc1d8a651",
+            .hash = "phpzx-0.0.0-GommwH1RMQDynlKFTqWBN3OKKYFlV1rqPrW3jzFlfyVt",
         },
     },
     .fingerprint = 0x4ae5f7766d553397,

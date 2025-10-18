@@ -49624,7 +49624,7 @@ pub const STANDARD_MODULE_HEADER = blk: {
 };
 pub const ZE2_STANDARD_MODULE_HEADER = @compileError("unable to translate macro: undefined identifier `ini_entries`");
 // /opt/homebrew/Cellar/php/8.4.10/include/php/Zend/zend_modules.h:44:9
-pub const ZEND_MODULE_BUILD_ID = "API" ++ ZEND_TOSTR(ZEND_MODULE_API_NO) ++ ZEND_BUILD_TS;
+pub const ZEND_MODULE_BUILD_ID = "API" ++ ZEND_MODULE_API_NO ++ ZEND_BUILD_TS;
 pub const STANDARD_MODULE_PROPERTIES_EX = blk: {
     _ = @as(c_int, 0);
     _ = @as(c_int, 0);
