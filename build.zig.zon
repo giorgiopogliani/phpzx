@@ -3,7 +3,12 @@
     .version = "0.0.0",
     .fingerprint = 0x1e9dc81cc0a6891a,
     .minimum_zig_version = "0.14.1",
-    .dependencies = .{},
+    .dependencies = .{
+        .phpzx = .{
+            .url = "git+https://github.com/giorgiopogliani/phpzx#0dfd02a0f4a75a54dae1b08a9e147ae62356318c",
+            .hash = "phpzx-0.0.0-GommwAZoMQBN5ERGIj_iaTs4i7IlxB7Lkfs19DqhA8kF",
+        },
+    },
     .paths = .{
         "build.zig",
         "build.zig.zon",

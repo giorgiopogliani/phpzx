@@ -1,0 +1,16 @@
+.{
+    .name = .myproject,
+    .version = "0.0.0", // comment
+    .dependencies = .{
+        .phpzx = .{
+            .url = "git+https://github.com/giorgiopogliani/phpzx#736551a1a1f73b1882815addc12a382def452763",
+            .hash = "phpzx-0.0.0-GommwPl4MQCFoYOLtps9TeNp99l6iU16Wa8gJg84tJMY",
+        },
+    },
+    .fingerprint = 0x4ae5f7766d553397,
+    .paths = .{
+        "src",
+        "build.zig",
+        "build.zig.zon",
+    },
+}

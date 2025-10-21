@@ -22495,7 +22495,7 @@ pub const struct__zend_execute_data = extern struct {
     extra_named_params: [*c]zend_array = @import("std").mem.zeroes([*c]zend_array),
 };
 pub const zend_execute_data = struct__zend_execute_data;
-pub const zif_handler = ?*const fn ([*c]zend_execute_data, [*c]zval) callconv(.c) void;
+pub const zif_handler = ?*const fn ([*c]struct__zend_execute_data, *struct__zval_struct) callconv(.c) void;
 pub const zend_ini_entry = struct__zend_ini_entry;
 pub const struct__zend_ini_entry = extern struct {
     name: [*c]zend_string = @import("std").mem.zeroes([*c]zend_string),
@@ -22534,7 +22534,7 @@ pub const struct__zend_module_entry = extern struct {
     zts: u8 = @import("std").mem.zeroes(u8),
     ini_entry: [*c]const struct__zend_ini_entry = @import("std").mem.zeroes([*c]const struct__zend_ini_entry),
     deps: [*c]const struct__zend_module_dep = @import("std").mem.zeroes([*c]const struct__zend_module_dep),
-    name: [*c]const u8 = @import("std").mem.zeroes([*c]const u8),
+    name: [*c]const u8 = undefined,
     functions: [*c]const struct__zend_function_entry = @import("std").mem.zeroes([*c]const struct__zend_function_entry),
     module_startup_func: ?*const fn (c_int, c_int) callconv(.c) zend_result = @import("std").mem.zeroes(?*const fn (c_int, c_int) callconv(.c) zend_result),
     module_shutdown_func: ?*const fn (c_int, c_int) callconv(.c) zend_result = @import("std").mem.zeroes(?*const fn (c_int, c_int) callconv(.c) zend_result),
@@ -22681,7 +22681,7 @@ pub const struct__zend_class_arrayaccess_funcs = extern struct {
 };
 pub const zend_class_arrayaccess_funcs = struct__zend_class_arrayaccess_funcs;
 const union_unnamed_17 = extern union {
-    create_object: ?*const fn ([*c]zend_class_entry) callconv(.c) [*c]zend_object,
+    create_object: ?*const fn (*zend_class_entry) callconv(.c) *zend_object,
     interface_gets_implemented: ?*const fn ([*c]zend_class_entry, [*c]zend_class_entry) callconv(.c) c_int,
 };
 pub const struct__zend_object_iterator_funcs = extern struct {
@@ -49624,7 +49624,7 @@ pub const STANDARD_MODULE_HEADER = blk: {
 };
 pub const ZE2_STANDARD_MODULE_HEADER = @compileError("unable to translate macro: undefined identifier `ini_entries`");
 // /opt/homebrew/Cellar/php/8.4.10/include/php/Zend/zend_modules.h:44:9
-pub const ZEND_MODULE_BUILD_ID = "API" ++ ZEND_TOSTR(ZEND_MODULE_API_NO) ++ ZEND_BUILD_TS;
+pub const ZEND_MODULE_BUILD_ID = "API" ++ "20240924" ++ ZEND_BUILD_TS;
 pub const STANDARD_MODULE_PROPERTIES_EX = blk: {
     _ = @as(c_int, 0);
     _ = @as(c_int, 0);

@@ -1,16 +1,19 @@
 <?php
 
-/**
- * Test case runner for comparing count vsarr_count
- */
 class ArrayMapTester {
     public function runPerformanceTest() {
         echo "\n=== Performance Comparison ===\n";
 
-        $test_sizes = [100, 1000, 10000];
+        $test_sizes = [10000, 10];
 
         foreach ($test_sizes as $size) {
             $array = range(1, $size);
+
+            // warmup
+            for ($i = 0; $i < 1000; $i++) {
+                count($array);
+                arr_count($array);
+            }
 
             // Test count performance
             $start = microtime(true);
