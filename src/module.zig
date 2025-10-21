@@ -62,6 +62,12 @@ pub fn functions(builder: ModuleBuilder, comptime entries: [*]const c.zend_funct
     } };
 }
 
+pub fn function(builder: ModuleBuilder, comptime entries: [*]const c.zend_function_entry) ModuleBuilder {
+    var new_module = builder.module;
+    new_module.functions = entries;
+    return ModuleBuilder{ .module = new_module };
+}
+
 pub fn minit(builder: ModuleBuilder, comptime func: @TypeOf(builder.module.module_startup_func)) ModuleBuilder {
     return ModuleBuilder{ .module = c.zend_module_entry{
         .size = builder.module.size,

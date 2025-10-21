@@ -4,20 +4,20 @@ const c = phpzx.c;
 
 const PhpDiagnostic = phpzx.PhpDiagnostic;
 const PhpFunction = phpzx.PhpFunction;
-const PhpFunctionEntry = phpzx.PhpFunctionEntry;
-const PhpFunctionEntry2 = phpzx.PhpFunctionEntry2;
+// const PhpFunctionEntry = phpzx.PhpFunctionEntry;
+// const PhpFunctionEntry2 = phpzx.PhpFunctionEntry2;
 const PhpFunctionEntryInfo = phpzx.PhpFunctionEntryInfo;
+const PhpModuleBuilder = @import("module.zig");
+
+
+pub inline fn num_double(value: c.zend_long) c.zend_long {
+  return value * 2;
+}
 
 // Usage
-var module = phpzx.ModuleBuilder.new("basic")
-    .functions(&[_]c.zend_function_entry{
-        PhpFunctionEntry2.new("num_double", struct {
-            pub inline fn handle(value: c.zend_long) c.zend_long {
-                return value * 2;
-            }
-        }),
-        PhpFunctionEntry.empty(),
-    })
+var module = PhpModuleBuilder
+    .new("basic")
+    .function("num_double", num_double)
     .build();
 
 pub export fn get_module() [*c]c.zend_module_entry {

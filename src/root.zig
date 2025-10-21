@@ -130,10 +130,8 @@ pub const PhpFunctionEntry = struct {
             .doc_comment = null,
         };
     }
-};
 
-pub const PhpFunctionEntry2 = struct {
-    pub fn new(comptime name: []const u8, comptime Handler: type) c.zend_function_entry {
+    pub fn from(comptime name: []const u8, comptime Handler: type) c.zend_function_entry {
         const impl = struct {
             fn zif(execute_data: [*c]c.zend_execute_data, return_value: [*c]c.zval) callconv(.c) void {
                 const handler_fn = Handler.handle;
