@@ -31,15 +31,13 @@ pub fn build(b: *std.Build) !void {
 
     const test_step = b.step("test", "Run unit");
 
-    const tests = [_]*std.Build.Step.Compile{
-        b.addTest(.{
-            .root_module = b.createModule(.{
-                .root_source_file = b.path("src/tests.zig"),
-                .target = target,
-                .optimize = optimize,
-            }),
-        })
-    };
+    const tests = [_]*std.Build.Step.Compile{b.addTest(.{
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/tests.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+    })};
 
     for (tests) |test_item| {
         test_item.linkLibC();
@@ -75,14 +73,32 @@ pub fn runCommand(allocator: std.mem.Allocator, args: []const []const u8) ![]u8 
 }
 
 pub fn setupPhpConfig(lib: *std.Build.Step.Compile, b: *std.Build) !void {
-  // Get PHP includes, libs, and ldflags via php-config
-  const php_includes_raw = try runCommand(b.allocator, &.{ "php-config", "--includes" });
+    // Get PHP includes, libs, and ldflags via php-config
+    const php_includes_raw = try runCommand(b.allocator, &.{ "php-config", "--includes" });
 
-  // Add PHP include paths
-  var includes_iter = std.mem.tokenizeScalar(u8, std.mem.trim(u8, php_includes_raw, " \n\r\t"), ' ');
-  while (includes_iter.next()) |flag| {
-      if (std.mem.startsWith(u8, flag, "-I")) {
-          lib.addIncludePath(.{ .cwd_relative = flag[2..] });
-      }
-  }
+    // Add PHP include paths
+    var includes_iter = std.mem.tokenizeScalar(u8, std.mem.trim(u8, php_includes_raw, " \n\r\t"), ' ');
+    while (includes_iter.next()) |flag| {
+        if (std.mem.startsWith(u8, flag, "-I")) {
+            lib.addIncludePath(.{ .cwd_relative = flag[2..] });
+        }
+    }
+}
+
+pub fn configureExtension(b: *std.Build, options: struct { name: []const u8, module: *std.Build.Module }) void {
+    const phpzx_dep = b.dependency("phpzx", .{});
+
+    const phpzx_mod = phpzx_dep.module("phpzx");
+
+    options.module.addImport("phpzx", phpzx_mod);
+
+    const lib = b.addLibrary(.{
+        .linkage = .dynamic,
+        .name = options.name,
+        .root_module = options.module,
+    });
+
+    lib.linker_allow_shlib_undefined = true;
+
+    setupPhpConfig(lib, b) catch @panic("Failed to setup PHP configuration");
 }
