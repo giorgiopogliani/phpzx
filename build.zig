@@ -29,49 +29,31 @@ pub fn build(b: *std.Build) !void {
 
     b.installArtifact(lib);
 
-    // const test_step = b.addTest(.{
-    //     .name = "test",
-    //     .root_module = lib_mod,
-    // });
-
-    // test_step.addCSourceFiles(.{
-    //   .files = &[_][]const u8{
-    //       // "src/_module.c",
-    //   },
-    //   .flags = &[_][]const u8{
-    //       "-DTARGET_EXTENSION",
-    //       php_includes,
-    //   },
-    // });
     const test_step = b.step("test", "Run unit");
 
     const tests = [_]*std.Build.Step.Compile{
         b.addTest(.{
             .root_module = b.createModule(.{
-                .root_source_file = b.path("src/module.zig"),
+                .root_source_file = b.path("src/tests.zig"),
                 .target = target,
                 .optimize = optimize,
             }),
-        }),
-        b.addTest(.{
-            .root_module = b.createModule(.{
-                .root_source_file = b.path("src/root.zig"),
-                .target = target,
-                .optimize = optimize,
-            }),
-        }),
+        })
     };
 
     for (tests) |test_item| {
         test_item.linkLibC();
 
-        var iter = std.mem.tokenizeScalar(u8, php_includes, ' ');
-        while (iter.next()) |include| {
+        var it2 = std.mem.tokenizeScalar(u8, php_includes, ' ');
+        while (it2.next()) |include| {
             if (std.mem.startsWith(u8, include, "-I")) {
                 const path = std.mem.trim(u8, include[2..], "\n\r");
-                test_item.root_module.addIncludePath(.{ .cwd_relative = path });
+                test_item.addIncludePath(.{ .cwd_relative = path });
             }
         }
+
+        test_item.linker_allow_shlib_undefined = true;
+
         const run_tests = b.addRunArtifact(test_item);
         test_step.dependOn(&run_tests.step);
     }

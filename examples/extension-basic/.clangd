@@ -1,8 +1,0 @@
-CompileFlags:
-  Add:
-    - -I/opt/homebrew/Cellar/php/8.4.10/include/php
-    - -I/opt/homebrew/Cellar/php/8.4.10/include/php/main
-    - -I/opt/homebrew/Cellar/php/8.4.10/include/php/TSRM
-    - -I/opt/homebrew/Cellar/php/8.4.10/include/php/Zend
-    - -I/opt/homebrew/Cellar/php/8.4.10/include/php/ext
-    - -I/opt/homebrew/Cellar/php/8.4.10/include/php/ext/date/lib

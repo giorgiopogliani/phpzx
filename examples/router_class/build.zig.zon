@@ -1,0 +1,15 @@
+.{
+    .name = .myproject,
+    .version = "0.0.0", // comment
+    .dependencies = .{
+        .phpzx = .{
+            .path = "../..",
+        },
+    },
+    .fingerprint = 0x4ae5f7766d553397,
+    .paths = .{
+        "src",
+        "build.zig",
+        "build.zig.zon",
+    },
+}

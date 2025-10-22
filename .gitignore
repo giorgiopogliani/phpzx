@@ -1,6 +1,11 @@
-.DS_Store
-.zig-cache
-zig-out
-app
-
+# tests generated files
 tests
+
+# build files
+zig-out
+.zig-cache
+
+# Misc
+.claude
+.zed
+.DS_Store
