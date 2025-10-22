@@ -12,8 +12,8 @@ pub fn build(b: *std.Build) !void {
     });
 
     const lib = phpzx.configureExtension(b, .{
-      .name = "myext",
-      .module = lib_mod,
+        .name = "myext",
+        .module = lib_mod,
     });
 
     b.installArtifact(lib);

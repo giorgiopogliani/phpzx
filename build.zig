@@ -85,7 +85,7 @@ pub fn setupPhpConfig(lib: *std.Build.Step.Compile, b: *std.Build) !void {
     }
 }
 
-pub fn configureExtension(b: *std.Build, options: struct { name: []const u8, module: *std.Build.Module }) void {
+pub fn configureExtension(b: *std.Build, options: struct { name: []const u8, module: *std.Build.Module }) *std.Build.Step.Compile {
     const phpzx_dep = b.dependency("phpzx", .{});
 
     const phpzx_mod = phpzx_dep.module("phpzx");
@@ -101,4 +101,6 @@ pub fn configureExtension(b: *std.Build, options: struct { name: []const u8, mod
     lib.linker_allow_shlib_undefined = true;
 
     setupPhpConfig(lib, b) catch @panic("Failed to setup PHP configuration");
+
+    return lib;
 }
