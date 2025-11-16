@@ -14,4 +14,5 @@ pub const PhpError = error{
     ErrorWrongCallbackOrNull, // 12
     /// Custom error codes
     ErrorUnexpectedType,
+    ErrorInvalidArgumentType,
 };
