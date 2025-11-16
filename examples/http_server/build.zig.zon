@@ -1,0 +1,19 @@
+.{
+    .name = .httpserver,
+    .version = "0.0.0",
+    .dependencies = .{
+        .phpzx = .{
+            .path = "../..",
+        },
+        .httpz = .{
+            .url = "git+https://github.com/karlseguin/http.zig#5e5ab5f82477252fd85943bcb33db483bde6de86",
+            .hash = "httpz-0.0.0-PNVzrLndBgBwKYPO0v3OFD-6741_9uKdWtU27sil2-df",
+        },
+    },
+    .fingerprint = 0xa328853ffb4f1117,
+    .paths = .{
+        "src",
+        "build.zig",
+        "build.zig.zon",
+    },
+}
