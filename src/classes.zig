@@ -3,6 +3,8 @@ const std = @import("std");
 const PhpFunctionArgInfo = @import("functions.zig").PhpFunctionArgInfo;
 const PhpFunctionEntry = @import("functions.zig").PhpFunctionEntry;
 const PhpType = @import("types.zig").PhpType;
+const PhpInt = @import("types.zig").PhpInt;
+const PhpError = @import("errors.zig").PhpError;
 
 /// Helper to get object from execute_data This pointer
 pub inline fn getThisObject(comptime T: type, execute_data: [*c]c.zend_execute_data) *T {
@@ -58,10 +60,15 @@ pub fn createObjectHandler(
     ce: [*c]c.zend_class_entry,
     handlers: *c.zend_object_handlers,
 ) [*c]c.zend_object {
+    // std.debug.print("Allocating object\n", .{});
     const obj = @as(*T, @ptrCast(@alignCast(c.zend_object_alloc(@sizeOf(T), ce))));
+    // std.debug.print("Initializing object\n", .{});
     c.zend_object_std_init(&obj.*.std, ce);
+    // std.debug.print("Initializing object properties\n", .{});
     c.object_properties_init(&obj.*.std, ce);
+    // std.debug.print("Initializing object handlers\n", .{});
     obj.*.std.handlers = handlers;
+    // std.debug.print("Returning object\n", .{});
     return &obj.*.std;
 }
 
@@ -76,7 +83,10 @@ pub fn PhpClass(comptime class_name: [:0]const u8, comptime T: type) type {
 
         // Auto-generated create object handler
         fn createObject(ce_param: [*c]c.zend_class_entry) callconv(.c) [*c]c.zend_object {
-            return createObjectHandler(T, ce_param, &handlers);
+            // std.debug.print("Creating object for class {s}\n", .{class_name});
+            const obj = createObjectHandler(T, ce_param, &handlers);
+            // std.debug.print("Returning object\n", .{});
+            return obj;
         }
 
         // Auto-generated method entries
@@ -89,6 +99,13 @@ pub fn PhpClass(comptime class_name: [:0]const u8, comptime T: type) type {
             ce = registerClass(&ce_local, &createObject);
             copyStdHandlers(&handlers);
             return c.SUCCESS;
+        }
+
+        /// Create a new instance of this class from Zig
+        pub fn create() c.zval {
+          var zval: c.zval = undefined;
+          _ = c.object_init_ex(&zval, ce);
+          return zval;
         }
 
         fn generateMethods() [countMethodsInType() + 1]c.zend_function_entry {
@@ -235,32 +252,75 @@ fn generateMethod(comptime T: type, comptime name: []const u8, comptime method: 
                         args[0] = obj; // First argument is always self
 
                         // Parse remaining arguments
-                        inline for (params[1..], 1..) |param, i| {
+                        inline for (params[1..], 0..) |param, i| {
                             const param_type = param.type.?;
-                            
-                            switch (param_type) {
-                                c.zend_long => {
-                                    helpers.parse_arg_long(&diag, &func, i, &args[i]) catch |err| {
+
+                            // Check if it's a pointer to an object type
+                            const param_info = @typeInfo(param_type);
+                            if (param_info == .pointer) {
+                                const child_type = param_info.pointer.child;
+                                if (@typeInfo(child_type) == .@"struct" and @hasField(child_type, "std")) {
+                                    // Parse object parameter
+                                    helpers.parse_arg_object(&diag, &func, i, child_type, &args[i + 1]) catch |err| {
                                         diag.report(err);
                                         return;
                                     };
-                                },
+                                    continue;
+                                }
+                            }
+
+                            try switch (param_type) {
+                                types.PhpInt => &args[i + 1].parse(), //PhpInt.parse(&diag, &func, i, &args[i + 1].parse()),
                                 types.PhpCallable => {
                                     // Parse callable into the PhpCallable struct
-                                    helpers.parse_arg_closure(&diag, &func, i, &args[i].fci, &args[i].fci_cache) catch |err| {
+                                    helpers.parse_arg_closure(&diag, &func, i, &args[i + 1].fci, &args[i + 1].fci_cache) catch |err| {
                                         diag.report(err);
                                         return;
                                     };
                                 },
                                 types.PhpString => {
                                     // Parse string into the PhpString struct
-                                    helpers.parse_arg_string(&diag, &func, i, &args[i].ptr, &args[i].len) catch |err| {
+                                    helpers.parse_arg_string(&diag, &func, i, &args[i + 1].ptr, &args[i + 1].len) catch |err| {
                                         diag.report(err);
                                         return;
                                     };
                                 },
+                                types.PhpArray => {
+                                    // Parse array into the PhpArray struct
+                                    var zval_ptr: [*c]c.zval = undefined;
+                                    helpers.parse_arg_zval(&diag, &func, i, &zval_ptr) catch |err| {
+                                        diag.report(err);
+                                        return;
+                                    };
+                                    helpers.check_arg_type(&diag, i + 1, zval_ptr, types.PhpType.Array) catch |err| {
+                                        diag.report(err);
+                                        return;
+                                    };
+                                    args[i + 1] = types.PhpArray.from(zval_ptr);
+                                },
+                                types.PhpValue => {
+                                    // Parse any value into the PhpValue struct
+                                    var zval_ptr: [*c]c.zval = undefined;
+                                    helpers.parse_arg_zval(&diag, &func, i, &zval_ptr) catch |err| {
+                                        diag.report(err);
+                                        return;
+                                    };
+                                    // args[i + 1] = types.PhpValue.init(zval_ptr);
+                                    args[i + 1] = types.PhpValue.parse(&diag, &func, i, &zval_ptr);
+                                },
+                                c.zval => {
+                                    // Pass zval directly
+                                    args[i + 1] = (func.args + i + 1).*;
+                                },
+                                [*c]c.zval => {
+                                    // Pass zval pointer directly
+                                    args[i + 1] = func.args + i + 1;
+                                },
                                 else => @compileError("Unsupported parameter type: " ++ @typeName(param_type)),
-                            }
+                            } catch |err| {
+                                diag.report(err);
+                                return;
+                            };
                         }
 
                         // Call method with parsed arguments
@@ -289,13 +349,31 @@ fn generateMethod(comptime T: type, comptime name: []const u8, comptime method: 
 
 fn mapZigTypeToPhp(comptime T: type) PhpType {
     const types = @import("types.zig");
+
+    // Handle pointer types
+    const type_info = @typeInfo(T);
+    if (type_info == .pointer) {
+        // Check if it's a struct with a 'std' field (PHP object)
+        const child_type = type_info.pointer.child;
+        if (@typeInfo(child_type) == .@"struct") {
+            if (@hasField(child_type, "std")) {
+                return PhpType.Object;
+            }
+        }
+    }
+
     return switch (T) {
-        c.zend_long => PhpType.Long,
-        c.zend_bool => PhpType.True, // Bool type
+        i64, i32 => PhpType.Long,
+        bool => PhpType.True,
+        f64, f32 => PhpType.Double,
         c.zend_string, [*c]c.zend_string => PhpType.String,
         [*c]c.zval => PhpType.Mixed,
+        c.zval => PhpType.Mixed,
         types.PhpCallable => PhpType.Callable,
         types.PhpString => PhpType.String,
+        types.PhpArray => PhpType.Array,
+        types.PhpValue => PhpType.Mixed,
+        [:0]const u8, []const u8 => PhpType.String,
         else => @compileError("Unsupported PHP type mapping for: " ++ @typeName(T)),
     };
 }
@@ -305,10 +383,26 @@ fn setReturnValue(return_value: [*c]c.zval, result: anytype, comptime ret_type: 
         if (rt == void) {
             return;
         }
+
+        // Handle pointer types (like object pointers)
+        const type_info = @typeInfo(rt);
+        if (type_info == .pointer) {
+            const child_type = type_info.pointer.child;
+            if (@typeInfo(child_type) == .@"struct" and @hasField(child_type, "std")) {
+                // This is a PHP object pointer - wrap it in a zval
+                return_value.*.value.obj = @ptrCast(&result.*.std);
+                return_value.*.u1.type_info = @intFromEnum(PhpType.Object);
+                return;
+            }
+        }
+
         switch (rt) {
             c.zend_long => {
                 return_value.*.value.lval = result;
                 return_value.*.u1.type_info = @intFromEnum(PhpType.Long);
+            },
+            c.zval => {
+                return_value.* = result;
             },
             else => {},
         }
