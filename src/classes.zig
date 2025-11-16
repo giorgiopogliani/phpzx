@@ -269,8 +269,13 @@ fn generateMethod(comptime T: type, comptime name: []const u8, comptime method: 
                                 }
                             }
 
-                            try switch (param_type) {
-                                types.PhpInt => &args[i + 1].parse(), //PhpInt.parse(&diag, &func, i, &args[i + 1].parse()),
+                            switch (param_type) {
+                                types.PhpInt => {
+                                    args[i + 1] = helpers.parse_arg_long(&diag, &func, i) catch |err| {
+                                        diag.report(err);
+                                        return;
+                                    };
+                                },
                                 types.PhpCallable => {
                                     // Parse callable into the PhpCallable struct
                                     helpers.parse_arg_closure(&diag, &func, i, &args[i + 1].fci, &args[i + 1].fci_cache) catch |err| {
@@ -280,7 +285,7 @@ fn generateMethod(comptime T: type, comptime name: []const u8, comptime method: 
                                 },
                                 types.PhpString => {
                                     // Parse string into the PhpString struct
-                                    helpers.parse_arg_string(&diag, &func, i, &args[i + 1].ptr, &args[i + 1].len) catch |err| {
+                                    args[i + 1] = helpers.parse_arg_string(&diag, &func, i) catch |err| {
                                         diag.report(err);
                                         return;
                                     };
@@ -317,10 +322,7 @@ fn generateMethod(comptime T: type, comptime name: []const u8, comptime method: 
                                     args[i + 1] = func.args + i + 1;
                                 },
                                 else => @compileError("Unsupported parameter type: " ++ @typeName(param_type)),
-                            } catch |err| {
-                                diag.report(err);
-                                return;
-                            };
+                            }
                         }
 
                         // Call method with parsed arguments
